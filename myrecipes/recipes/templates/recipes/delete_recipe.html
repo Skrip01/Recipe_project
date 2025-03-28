@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html -->
+{% block title %}Удалить рецепт{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <!-- Карточка Bootstrap для стилизации формы -->
+    <div class="card shadow-sm">
+      <!-- Заголовок карточки с красным фоном и названием рецепта -->
+      <div class="card-header bg-danger text-white">
+        <h3 class="mb-0">Удалить рецепт: {{ recipe.title }}</h3>
+      </div>
+      <!-- Тело карточки -->
+      <div class="card-body">
+        <!-- Текст с запросом подтверждения -->
+        <p class="card-text">Вы уверены, что хотите удалить этот рецепт?</p>
+        <!-- Форма для отправки запроса на удаление -->
+        <form method="post">
+          <!-- Токен CSRF для защиты от атак -->
+          {% csrf_token %}
+          <!-- Кнопки для подтверждения или отмены -->
+          <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <!-- Ссылка на страницу детального просмотра рецепта -->
+            <a href="{% url 'recipe_detail' recipe.id %}" class="btn btn-secondary">Отмена</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html с названием рецепта -->
+{% block title %}{{ recipe.title }}{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+<div class="row">
+  <!-- Основной контент рецепта (8 колонок) -->
+  <div class="col-md-8">
+    <!-- Название рецепта -->
+    <h1>{{ recipe.title }}</h1>
+
+    {% if recipe.image %}
+      <!-- Изображение рецепта, путь берётся из модели Recipe и settings.py (MEDIA_URL) -->
+      <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" class="img-fluid mb-3">
+    {% endif %}
+
+    <!-- Информация о рецепте -->
+    <p><strong>Автор:</strong> {{ recipe.author.username }}</p>
+    <p><strong>Описание:</strong> {{ recipe.description }}</p>
+    <p><strong>Ингредиенты:</strong></p>
+    <p>{{ recipe.ingredients|linebreaks }}</p>
+    <p><strong>Шаги приготовления:</strong></p>
+    <p>{{ recipe.steps|linebreaks }}</p> <!-- Добавлен фильтр linebreaks для переноса строк -->
+    <p><strong>Время приготовления:</strong> {{ recipe.cooking_time }} минут</p>
+
+    <!-- Рейтинг рецепта -->
+    <h2>Оценка рецепта</h2>
+    {% if avg_rating %}
+      <!-- Средняя оценка с округлением до 1 знака -->
+      <p>Средняя оценка: {{ avg_rating|floatformat:1 }} из 5</p>
+    {% else %}
+      <p>Рецепт ещё не оценён.</p>
+    {% endif %}
+    {% if user.is_authenticated %}
+      <!-- Форма для оценки рецепта -->
+      <form action="{% url 'rate_recipe' recipe.id %}" method="post" class="mb-3">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="rating" class="form-label">Ваша оценка:</label>
+          <select name="value" id="rating" class="form-select" style="max-width: 150px;">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Оценить</button>
+      </form>
+    {% else %}
+      <!-- Призыв к входу для неавторизованных пользователей -->
+      <p><a href="{% url 'login' %}">Войдите</a>, чтобы оценить рецепт.</p>
+    {% endif %}
+
+    <hr>
+    <!-- Секция комментариев -->
+    <h2>Комментарии</h2>
+    {% for comment in comments %}
+      <div class="mb-3 border-bottom pb-2">
+        <p>
+          <strong>{{ comment.author.username }}</strong>
+          <!-- Дата и время комментария -->
+          <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+        </p>
+        <p>{{ comment.text|linebreaks }}</p> <!-- Добавлен фильтр linebreaks для форматирования -->
+        {% if user == comment.author %}
+          <!-- Кнопка открытия модального окна для удаления -->
+          <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCommentModal{{ comment.id }}">
+            Удалить
+          </button>
+        {% endif %}
+      </div>
+
+      {% if user == comment.author %}
+        <!-- Модальное окно для подтверждения удаления комментария -->
+        <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1" aria-labelledby="deleteCommentModalLabel{{ comment.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteCommentModalLabel{{ comment.id }}">Удалить комментарий</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+              </div>
+              <div class="modal-body">
+                <p>Вы уверены, что хотите удалить следующий комментарий?</p>
+                <blockquote class="blockquote">
+                  <p class="mb-0">{{ comment.text }}</p>
+                  <footer class="blockquote-footer">
+                    Автор: {{ comment.author.username }}
+                    {% if comment.created_at %}
+                      <cite title="Дата">{{ comment.created_at|date:"d.m.Y H:i" }}</cite>
+                    {% endif %}
+                  </footer>
+                </blockquote>
+              </div>
+              <div class="modal-footer">
+                <!-- Форма удаления комментария -->
+                <form method="post" action="{% url 'delete_comment' comment.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% empty %}
+      <!-- Сообщение, если комментариев нет -->
+      <p class="alert alert-info">Комментариев пока нет.</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+      <!-- Форма для добавления комментария -->
+      <h3>Оставить комментарий</h3>
+      <form method="post" class="mb-5">
+        {% csrf_token %}
+        <!-- Отображаем CommentForm -->
+        <div class="mb-3">
+          <label for="id_text" class="form-label">Ваш комментарий</label>
+          <textarea class="form-control" id="id_text" name="text" rows="4" placeholder="Напишите ваш комментарий здесь..." required>{{ comment_form.text.value|default:'' }}</textarea>
+          {% if comment_form.text.errors %}
+          <div class="text-danger">{{ comment_form.text.errors }}</div>
+        {% endif %}
+        </div>
+        <button type="submit" class="btn btn-success">Добавить комментарий</button>
+      </form>
+    {% else %}
+      <!-- Призыв к входу для неавторизованных пользователей -->
+      <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить комментарий.</p>
+    {% endif %}
+  </div>
+
+  <!-- Боковая панель (4 колонки) -->
+  <div class="col-md-4">
+    <!-- Действия автора рецепта -->
+    {% if user == recipe.author %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Действия</h5>
+          <!-- Ссылки на редактирование и удаление -->
+          <a href="{% url 'edit_recipe' recipe.id %}" class="btn btn-warning mb-2">Редактировать</a>
+          <a href="{% url 'delete_recipe' recipe.id %}" class="btn btn-danger">Удалить</a>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Навигация</h5>
+        <a href="{% url 'recipe_list' %}" class="btn btn-secondary">Назад</a>
+      </div>
+    </div>
+
+    <!-- Лайки -->
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Лайки</h5>
+        <!-- Количество лайков -->
+        <p class="card-text"><strong>{{ recipe.likes.count }}</strong> лайков</p>
+        {% if user.is_authenticated %}
+          {% if user in recipe.likes.all %}
+            <!-- Кнопка удаления лайка -->
+            <a href="{% url 'toggle_like' recipe.id %}" class="btn btn-secondary">Удалить лайк</a>
+          {% else %}
+            <!-- Кнопка добавления лайка -->
+            <a href="{% url 'toggle_like' recipe.id %}" class="btn btn-primary">Поставить лайк</a>
+          {% endif %}
+        {% else %}
+          <!-- Призыв к входу для неавторизованных пользователей -->
+          <p><a href="{% url 'login' %}">Войдите</a>, чтобы поставить лайк.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

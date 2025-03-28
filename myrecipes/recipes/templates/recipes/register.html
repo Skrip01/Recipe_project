@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html -->
+{% block title %}Регистрация{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <!-- Заголовок страницы -->
+    <h1 class="mb-4">Регистрация</h1>
+    <!-- Форма для отправки данных регистрации -->
+    <form method="post">
+      <!-- Токен CSRF для защиты от атак -->
+      {% csrf_token %}
+      <!-- Отображаем форму UserCreationForm -->
+      <!-- Используем as_p для вывода полей в параграфах -->
+      {{ form.as_p }}
+      <!-- Кнопка отправки формы -->
+      <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+    </form>
+    <!-- Ссылка на страницу входа для существующих пользователей -->
+    <p class="mt-3">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html -->
+{% block title %}Список рецептов{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+  <!-- Заголовок и кнопка добавления рецепта -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Рецепты</h1>
+    {% if user.is_authenticated %}
+      <!-- Кнопка для авторизованных пользователей, ведёт на страницу добавления рецепта -->
+      <a href="{% url 'add_recipe' %}" class="btn btn-primary">Добавить рецепт</a>
+    {% endif %}
+  </div>
+
+  <!-- Фильтры: поиск и категории -->
+  <form method="get" class="mb-4">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <!-- Поле поиска по названию -->
+        <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Поиск по названию">
+      </div>
+      <div class="col-md-4">
+        <!-- Выбор категории -->
+        <select name="category" class="form-select">
+          <option value="">Все категории</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}" {% if category.id|stringformat:'s' == request.GET.category %}selected
+          {% endif %}>
+              {{ category.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Фильтр</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Грид карточек рецептов с использованием Bootstrap -->
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for recipe in page_obj %}
+    <!-- Карточка рецепта, обёрнутая в ссылку -->
+    <div class="col fade-in">
+      <a href="{% url 'recipe_detail' recipe.id %}" class="card h-100 shadow-sm card-hover text-decoration-none">
+        {% if recipe.image %}
+          <!-- Изображение рецепта -->
+          <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ recipe.title }}</h5>
+          <!-- Описание, обрезается до 20 слов -->
+          <p class="card-text">{{ recipe.description|truncatewords:20 }}</p>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <small class="text-muted">Автор: {{ recipe.author.username }}</small>
+          <!-- Кнопка "Подробнее" остаётся для визуальной подсказки, но теперь вся карточка кликабельна -->
+          <span class="btn btn-sm btn-primary">Подробнее</span>
+        </div>
+      </a>
+    </div>
+  {% empty %}
+    <!-- Сообщение, если рецептов нет -->
+    <div class="col">
+      <div class="alert alert-info">Рецептов пока нет.</div>
+    </div>
+  {% endfor %}
+</div>
+
+  <!-- Пагинация -->
+  {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}
+            {% if request.GET.search %}&search={{ search_query }}{% endif %}
+            {% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Предыдущая</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Предыдущая</span></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ search_query }
+            }{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ num }}</a>
+          </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}
+            {% if request.GET.search %}&search={{ search_query }}{% endif %}
+            {% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Следующая</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Следующая</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+{% endblock %}

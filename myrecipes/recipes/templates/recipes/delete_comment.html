@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html -->
+{% block title %}Удалить комментарий{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <!-- Карточка Bootstrap для стилизации формы -->
+    <div class="card shadow-sm">
+      <!-- Заголовок карточки с красным фоном -->
+      <div class="card-header bg-danger text-white">
+        <h3 class="mb-0">Удалить комментарий</h3>
+      </div>
+      <!-- Тело карточки -->
+      <div class="card-body">
+        <!-- Текст с запросом подтверждения -->
+        <p>Вы уверены, что хотите удалить следующий комментарий?</p>
+        <!-- Цитата с текстом комментария и информацией об авторе -->
+        <blockquote class="blockquote">
+          <p class="mb-0">{{ comment.text }}</p>
+          <footer class="blockquote-footer">
+            Автор: {{ comment.author.username }}
+            {% if comment.created_at %}
+              <!-- Форматируем дату создания комментария -->
+              <cite title="Дата">{{ comment.created_at|date:"d.m.Y H:i" }}</cite>
+            {% endif %}
+          </footer>
+        </blockquote>
+        <!-- Форма для отправки запроса на удаление -->
+        <form method="post">
+          <!-- Токен CSRF для защиты от атак -->
+          {% csrf_token %}
+          <!-- Кнопки для подтверждения или отмены -->
+          <div class="d-flex justify-content-between mt-3">
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <!-- Ссылка на страницу рецепта, откуда пришёл запрос -->
+            <a href="{% url 'recipe_detail' comment.recipe.id %}" class="btn btn-secondary">Отмена</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

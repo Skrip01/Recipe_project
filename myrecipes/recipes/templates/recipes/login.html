@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html -->
+{% block title %}Вход{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <!-- Заголовок страницы -->
+    <h1 class="mb-4">Вход</h1>
+    <!-- Форма для отправки данных аутентификации -->
+    <form method="post">
+      <!-- Токен CSRF для защиты от атак -->
+      {% csrf_token %}
+      <!-- Поле имени пользователя -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Имя пользователя</label>
+        <input type="text" class="form-control" id="username" name="username"
+               value="{{ form.username.value|default:'' }}" required>
+        {% if form.username.errors %}
+          <!-- Отображение ошибок валидации -->
+          <div class="text-danger">{{ form.username.errors }}</div>
+        {% endif %}
+      </div>
+      <!-- Поле пароля -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+        {% if form.password.errors %}
+          <!-- Отображение ошибок валидации -->
+          <div class="text-danger">{{ form.password.errors }}</div>
+        {% endif %}
+      </div>
+      <!-- Кнопка отправки формы -->
+      <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+    <!-- Ссылка на регистрацию для новых пользователей -->
+    <p class="mt-3">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+  </div>
+</div>
+{% endblock %}

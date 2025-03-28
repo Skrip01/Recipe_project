@@ -1,0 +1,90 @@
+/* Общие настройки */
+body {
+    background-color: #f8f9fa; /* Светлый фон по умолчанию (Bootstrap gray-100) */
+    font-family: 'Roboto', sans-serif; /* Шрифт Roboto, нужно подключить через Google Fonts */
+}
+
+/* Баннер сайта */
+.site-header {
+    position: relative;
+    background: url('/static/images/header-bg.jpg') no-repeat center center/cover; /* Исправлено: заменён красный цвет на изображение */
+    height: 130px; /* Фиксированная высота баннера */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.site-header .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный чёрный слой для текста */
+}
+
+.site-header .header-content {
+    position: relative;
+    z-index: 2; /* Текст поверх overlay */
+}
+
+/* Карточки рецептов */
+.card-hover {
+    border-radius: 0.5rem; /* Скруглённые углы */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Плавный переход для эффекта */
+}
+
+.card-hover:hover {
+    transform: translateY(-5px); /* Поднятие карточки при наведении */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Тень при наведении */
+}
+
+/* Градиентная кнопка (используется в index.html, но заменена на btn-primary) */
+/* Удаляем, если не используется, или оставляем для кастомизации */
+.btn-gradient {
+    background: linear-gradient(45deg, #007bff, #00c6ff); /* Градиент от синего к голубому */
+    color: #fff; /* Белый текст */
+    border: none; /* Убираем стандартную границу */
+    transition: background 0.3s ease; /* Плавное изменение фона */
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(45deg, #0056b3, #0094c2); /* Более тёмный градиент при наведении */
+}
+
+/* Анимация появления (используется для карточек в index.html) */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s forwards; /* Анимация длительностью 0.5 секунды */
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0); /* Конечное положение без смещения */
+    }
+}
+
+/* Темная тема (для переключателя в base.html) */
+.dark-theme {
+    background-color: #343a40; /* Тёмно-серый фон (Bootstrap gray-800) */
+    color: #f8f9fa; /* Светлый текст (Bootstrap gray-100) */
+}
+
+.dark-theme .navbar,
+.dark-theme footer {
+    background-color: #23272b; /* Ещё более тёмный фон для навбара и футера */
+}
+
+.dark-theme .card {
+    background-color: #495057; /* Средний серый для карточек (Bootstrap gray-700) */
+    color: #f8f9fa; /* Светлый текст в карточках */
+}
+
+/* Дополнительно: адаптация текста в тёмной теме */
+.dark-theme .card-title,
+.dark-theme .card-text,
+.dark-theme .text-muted {
+    color: #f8f9fa; /* Убедимся, что текст остаётся читаемым */
+}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html -->
+{% block title %}Добавить рецепт{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">Добавить новый рецепт</h3>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Поле "Название" -->
+          <div class="mb-3">
+            <label for="id_title" class="form-label">Название</label>
+            <input type="text" class="form-control" id="id_title" name="title" value="{{ form.title.value|default:'' }}" required>
+            {% if form.title.errors %}
+              <div class="text-danger">{{ form.title.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Поле "Описание" -->
+          <div class="mb-3">
+            <label for="id_description" class="form-label">Описание</label>
+            <textarea class="form-control" id="id_description" name="description" rows="3" required>{{ form.description.value|default:'' }}</textarea>
+            {% if form.description.errors %}
+              <div class="text-danger">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Поле "Продукты" -->
+          <div class="mb-3">
+            <label for="id_ingredients" class="form-label">Ингредиенты</label>
+            <textarea class="form-control" id="id_ingredients" name="ingredients" rows="5"
+            >{{ form.ingredients.value|default:'' }}</textarea>
+            {% if form.ingredients.errors %}
+              <div class="text-danger">{{ form.ingredients.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Поле "Шаги приготовления" -->
+          <div class="mb-3">
+            <label for="id_steps" class="form-label">Шаги приготовления</label>
+            <textarea class="form-control" id="id_steps" name="steps" rows="5" required>{{ form.steps.value|default:'' }}</textarea>
+            {% if form.steps.errors %}
+              <div class="text-danger">{{ form.steps.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Поле "Время приготовления" -->
+          <div class="mb-3">
+            <label for="id_cooking_time" class="form-label">Время приготовления (в минутах)</label>
+            <input type="number" class="form-control" id="id_cooking_time" name="cooking_time" value="{{ form.cooking_time.value|default:'' }}" min="1" required>
+            {% if form.cooking_time.errors %}
+              <div class="text-danger">{{ form.cooking_time.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Поле "Изображение" -->
+          <div class="mb-3">
+            <label for="id_image" class="form-label">Изображение</label>
+            <input type="file" class="form-control" id="id_image" name="image" accept="image/*">
+            {% if form.image.errors %}
+              <div class="text-danger">{{ form.image.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Поле "Категория" -->
+          <div class="mb-3">
+            <label for="id_category" class="form-label">Категория</label>
+            <select class="form-select" id="id_category" name="category" required>
+              <option value="" disabled {% if not form.category.value %}selected{% endif %}>Выберите категорию</option>
+              {% for category in form.category.field.queryset %}
+                <option value="{{ category.id }}" {% id form.category.value == category.id %}selected{% endif %}>
+                  {{ category.name }}
+                </option>
+              {% endfor %}
+            </select>
+            {% if form.category.errors %}
+              <div class="text-danger">{{ form.category.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Кнопки -->
+          <div class="d-flex justify-content-between mt-3">
+            <button type="submit" class="btn btn-success">Добавить рецепт</button>
+            <a href="{% url 'recipe_list' %}" class="btn btn-secondary">Отмена</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

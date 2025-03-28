@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+<!-- Переопределяем заголовок страницы из base.html -->
+{% block title %}Профиль{% endblock %}
+
+<!-- Переопределяем блок контента из base.html -->
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <!-- Заголовок профиля с именем пользователя -->
+    <h1 class="mb-4">Профиль: {{ user.username }}</h1>
+    <hr>
+    <!-- Секция с рецептами пользователя -->
+    <h2 class="mt-4">Мои рецепты</h2>
+    {% if user_recipes %}
+      <!-- Список рецептов в виде Bootstrap list-group -->
+      <div class="list-group">
+        {% for recipe in user_recipes %}
+          <!-- Элемент списка, ссылка на страницу рецепта -->
+          <a href="{% url 'recipe_detail' recipe.id %}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <!-- Название рецепта -->
+              <h5 class="mb-1">{{ recipe.title }}</h5>
+              <!-- Дата создания рецепта -->
+              <small>{{ recipe.created_at|date:"d.m.Y" }}</small>
+            </div>
+            <!-- Краткое описание рецепта, обрезается до 20 слов -->
+            <p class="mb-1">{{ recipe.description|truncatewords:20 }}</p>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- Сообщение, если рецептов нет -->
+      <p class="alert alert-info">Вы еще не добавили рецептов.
+        <a href="{% url 'add_recipe' %}">Добавить первый рецепт</a></p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
